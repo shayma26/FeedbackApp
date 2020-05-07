@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "99065421432",
+    "firebase_url": "https://feedback-app-4042b.firebaseio.com",
+    "project_id": "feedback-app-4042b",
+    "storage_bucket": "feedback-app-4042b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99065421432:android:866af5f0a60d66a963978d",
+        "android_client_info": {
+          "package_name": "com.example.askforfeedback"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "99065421432-eegsqseunp1uha7d1hdae19u3ikagdem.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV0NCs0SuXw-tJn4S2kSakvib-T8-KWDY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "99065421432-eegsqseunp1uha7d1hdae19u3ikagdem.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
