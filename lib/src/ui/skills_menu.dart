@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'feedback_const.dart';
 import 'package:flutter/widgets.dart';
+import '../components/large_flat_button.dart';
 
 class SkillsMenu extends StatefulWidget {
   @override
@@ -26,7 +26,7 @@ class _SkillsMenuState extends State<SkillsMenu> {
     List<Widget> list = List<Widget>();
     for (var string in strings) {
       list.add(
-        CustomButton(
+        LargeFlatButton(
           fillText: string,
           onPressed: () {
             selectItem(string);

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'teams_config.dart';
+import '../../teams_config.dart';
 import 'package:search_widget/search_widget.dart';
-import 'teams_brain.dart';
+import '../../teams_brain.dart';
 
 String selectedRecipient;
 
