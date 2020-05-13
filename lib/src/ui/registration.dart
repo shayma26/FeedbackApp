@@ -35,7 +35,7 @@ class _RegisterState extends State<Register> {
             tag: 'welcome',
             child: Container(
               margin:
-                  EdgeInsets.only(top: 60.0, left: 72, right: 72, bottom: 150),
+                  EdgeInsets.only(top: 60.0, left: 72, right: 72, bottom: 189),
               child: Stack(
                 alignment: AlignmentDirectional.topCenter,
                 overflow: Overflow.visible,
@@ -89,7 +89,7 @@ class _RegisterState extends State<Register> {
                   obscure: true,
                 ),
                 SizedBox(
-                  height: 50,
+                  height: 35,
                 ),
                 RoundedButton(
                   label: 'Sign Up',
@@ -104,10 +104,14 @@ class _RegisterState extends State<Register> {
                           await _auth.createUserWithEmailAndPassword(
                               email: _emailController.text,
                               password: _passwordController.text);
+
+                      FirebaseUser loggedInUser = await _auth.currentUser();
+
                       if (newUser != null) {
                         _newUser.collection('users').add({
                           'first_name': _firstNameController.text,
-                          'last_name': _lastNameController.text
+                          'last_name': _lastNameController.text,
+                          'UID': loggedInUser.uid,
                         });
 
                         Navigator.pushNamed(context, 'noreceivedfeedback');

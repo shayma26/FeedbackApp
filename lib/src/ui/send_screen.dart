@@ -6,11 +6,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../components/rounded_button.dart';
 import '../components/important_title.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 enum skillAction { stop_that, keep_doing, take_action }
-
 final _firestore = Firestore.instance;
-bool showSnackBar = false;
+final _auth = FirebaseAuth.instance;
+FirebaseUser _loggedInUser;
+
+void getCurrentUser() async {
+  try {
+    final user = await _auth.currentUser();
+    if (user != null) _loggedInUser = user;
+  } catch (e) {
+    print(e);
+  }
+}
 
 class SendFeedback extends StatefulWidget {
   @override
@@ -40,6 +50,13 @@ class _SendFeedbackState extends State<SendFeedback> {
 
   bool _validateTitle = false;
   bool _validateDetails = false;
+  bool showSnackBar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +64,7 @@ class _SendFeedbackState extends State<SendFeedback> {
       backgroundColor: kBackgroundColor,
 
       body: Builder(builder: (context) {
+        //to show snackbar
         return ListView(
           children: <Widget>[
             Column(
@@ -79,7 +97,7 @@ class _SendFeedbackState extends State<SendFeedback> {
                   ),
                   child: GestureDetector(
                     onTap: () async {
-                      var name = await showMenu(TeamsMenu(), true);
+                      var name = await showMenu(RecipientsMenu(), true);
                       setState(() {
                         _recipientName = name;
                       });
@@ -378,7 +396,7 @@ class _SendFeedbackState extends State<SendFeedback> {
                                 'title': _titleText,
                                 'details': _detailsText,
                                 'action': _selectedAction.toString(),
-                                'sender': 'none',
+                                'sender': _loggedInUser.uid,
                               });
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Row(children: <Widget>[

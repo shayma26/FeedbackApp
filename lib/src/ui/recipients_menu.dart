@@ -8,52 +8,13 @@ final _firestore = Firestore.instance;
 String selectedRecipient;
 List<Member> allMembers = [];
 
-void getMembers() async {
-  final members = await _firestore.collection('users').getDocuments();
-  for (var member in members.documents) {
-    //TODO
-    print(
-        'first name: ${member.data['first_name']}  last name: ${member.data['last_name']}');
-    allMembers.add(
-      Member(
-        firstName: member.data['first_name'],
-        lastName: member.data['last_name'],
-      ),
-    );
-  }
-}
-
-class TeamsMenu extends StatefulWidget {
+class RecipientsMenu extends StatefulWidget {
   @override
-  _TeamsMenuState createState() => _TeamsMenuState();
+  _RecipientsMenuState createState() => _RecipientsMenuState();
 }
 
-class _TeamsMenuState extends State<TeamsMenu> {
+class _RecipientsMenuState extends State<RecipientsMenu> {
   TextEditingController searchController = TextEditingController();
-
-  Widget getListTiles(List<Member> members) {
-    List<Widget> list = List<Widget>();
-    for (var member in members) {
-      list.add(
-        getListTile(
-          member: member,
-          onTap: () {
-            selectedRecipient = '${member.firstName} ${member.lastName}';
-            Navigator.pop(context, selectedRecipient);
-          },
-        ),
-      );
-    }
-    return Column(
-      children: list,
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getMembers();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,12 +60,64 @@ class _TeamsMenuState extends State<TeamsMenu> {
                 },
               ),
             ),
-            Container(
-              child: getListTiles(allMembers),
-            ),
+            UsersStream(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class UsersStream extends StatelessWidget {
+  UsersStream({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore.collection('users').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.blue,
+            ),
+          );
+        }
+        final users = snapshot.data.documents;
+        List<Widget> usersWidgets = [];
+        for (var user in users) {
+          String firstName = user.data['first_name'];
+          String lastName = user.data['last_name'];
+          final member = Member(
+            firstName: firstName,
+            lastName: lastName,
+          );
+          if (!isThere(list: allMembers, member: member))
+            allMembers.add(
+              Member(
+                firstName: firstName,
+                lastName: lastName,
+              ),
+            );
+          usersWidgets.add(
+            ListTile(
+              title: Text(
+                '$firstName $lastName',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () {
+                selectedRecipient = ('$firstName $lastName');
+                Navigator.pop(context, selectedRecipient);
+              },
+            ),
+          );
+        }
+        return Column(
+          children: usersWidgets,
+        );
+      },
     );
   }
 }
