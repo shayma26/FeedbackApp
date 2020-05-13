@@ -1,6 +1,6 @@
 import 'package:askforfeedback/src/ui/skills_menu.dart';
 import 'package:flutter/material.dart';
-import 'teams_menu.dart';
+import 'recipients_menu.dart';
 import '../../feedback_const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

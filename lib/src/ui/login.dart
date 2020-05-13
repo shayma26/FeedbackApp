@@ -100,6 +100,8 @@ class _LogInState extends State<LogIn> {
                           password: _passwordController.text);
                       if (user != null) {
                         Navigator.pushNamed(context, 'noreceivedfeedback');
+                        _emailController.clear();
+                        _passwordController.clear();
                       }
                       setState(() {
                         showSpinner = false;

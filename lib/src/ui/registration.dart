@@ -109,7 +109,12 @@ class _RegisterState extends State<Register> {
                           'first_name': _firstNameController.text,
                           'last_name': _lastNameController.text
                         });
+
                         Navigator.pushNamed(context, 'noreceivedfeedback');
+                        _firstNameController.clear();
+                        _lastNameController.clear();
+                        _emailController.clear();
+                        _passwordController.clear();
                       }
                     } catch (e) {
                       print(e);
