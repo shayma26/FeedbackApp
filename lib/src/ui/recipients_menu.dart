@@ -50,7 +50,7 @@ class _RecipientsMenuState extends State<RecipientsMenu> {
                 listContainerHeight: MediaQuery.of(context).size.height / 4,
                 queryBuilder: (query, list) {
                   return list
-                      .where((item) => '${item.firstName} ${item.lastName}'
+                      .where((item) => '${item.completeName}'
                           .toLowerCase()
                           .contains(query.toLowerCase()))
                       .toList();
@@ -80,35 +80,36 @@ class UsersStream extends StatelessWidget {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
-            child: CircularProgressIndicator(
-              backgroundColor: Colors.blue,
+            child: Column(
+              children: <Widget>[
+                CircularProgressIndicator(
+                  backgroundColor: Colors.blue,
+                ),
+                Text(
+                  'No data yet',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              ],
             ),
           );
         }
         final users = snapshot.data.documents;
         List<Widget> usersWidgets = [];
         for (var user in users) {
-          String firstName = user.data['first_name'];
-          String lastName = user.data['last_name'];
+          String completeName = user.data['complete_name'];
           final member = Member(
-            firstName: firstName,
-            lastName: lastName,
+            completeName: completeName,
           );
           if (!isThere(list: allMembers, member: member))
-            allMembers.add(
-              Member(
-                firstName: firstName,
-                lastName: lastName,
-              ),
-            );
+            allMembers.add(member);
           usersWidgets.add(
             ListTile(
               title: Text(
-                '$firstName $lastName',
+                completeName,
                 style: TextStyle(fontSize: 20),
               ),
               onTap: () {
-                selectedRecipient = ('$firstName $lastName');
+                selectedRecipient = completeName;
                 Navigator.pop(context, selectedRecipient);
               },
             ),
@@ -133,7 +134,7 @@ class PopupListItemWidget extends StatelessWidget {
       child: getListTile(
         member: member,
         onTap: () {
-          selectedRecipient = '${member.firstName} ${member.lastName}';
+          selectedRecipient = member.completeName;
           Navigator.pop(context, selectedRecipient);
         },
       ),

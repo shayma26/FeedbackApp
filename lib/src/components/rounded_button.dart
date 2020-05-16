@@ -7,12 +7,14 @@ class RoundedButton extends StatelessWidget {
       @required this.label,
       this.labelSize = 20.0,
       this.width = 115,
-      this.elevation = 7.0});
+      this.elevation = 7.0,
+      this.labelWeight = FontWeight.w600});
   final double elevation;
   final Function onPressed;
   final String label;
   final double labelSize;
   final double width;
+  final FontWeight labelWeight;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class RoundedButton extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: labelSize,
-              fontWeight: FontWeight.w600,
+              fontWeight: labelWeight,
             ),
           ),
         ),

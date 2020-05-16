@@ -12,12 +12,13 @@ class AskForFeedback extends StatelessWidget {
       title: 'Ask For Feedback',
       theme: ThemeData(fontFamily: 'Poppins'),
       routes: {
-        'registration': (context) => Register(),
-        'login': (context) => LogIn(),
-        'noreceivedfeedback': (context) => NoReceivedFeedback(),
-        'sendfeedback': (context) => SendFeedback(),
+        Register.id: (context) => Register(),
+        LogIn.id: (context) => LogIn(),
+        NoReceivedFeedback.id: (context) => NoReceivedFeedback(),
+        ReceivedFeedback.id: (context) => ReceivedFeedback(),
+        SendFeedback.id: (context) => SendFeedback(),
       },
-      initialRoute: 'registration',
+      initialRoute: LogIn.id,
     );
   }
 }

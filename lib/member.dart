@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Member {
-  Member({this.firstName, this.lastName});
-  String firstName;
-  String lastName;
+  Member({this.completeName});
+  String completeName;
 }
 
 bool isThere({List<Member> list, Member member}) {
   for (var item in list) {
-    if (item.firstName == member.firstName &&
-        item.lastName == member.lastName) {
+    if (item.completeName == member.completeName) {
       return true;
     }
   }
@@ -19,7 +17,7 @@ bool isThere({List<Member> list, Member member}) {
 Widget getListTile({Member member, Function onTap}) {
   return ListTile(
     title: Text(
-      '${member.firstName} ${member.lastName}',
+      '${member.completeName}',
       style: TextStyle(fontSize: 16),
     ),
     onTap: onTap,

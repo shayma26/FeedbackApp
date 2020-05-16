@@ -7,8 +7,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../components/rounded_button.dart';
 import '../components/important_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../feedback_class.dart';
+import 'login.dart';
 
-enum skillAction { stop_that, keep_doing, take_action }
 final _firestore = Firestore.instance;
 final _auth = FirebaseAuth.instance;
 FirebaseUser _loggedInUser;
@@ -16,13 +17,17 @@ FirebaseUser _loggedInUser;
 void getCurrentUser() async {
   try {
     final user = await _auth.currentUser();
-    if (user != null) _loggedInUser = user;
+    if (user != null) {
+      _loggedInUser = user;
+    }
   } catch (e) {
     print(e);
   }
 }
 
 class SendFeedback extends StatefulWidget {
+  static String id = 'sendfeedback';
+
   @override
   _SendFeedbackState createState() => _SendFeedbackState();
 }
@@ -47,6 +52,7 @@ class _SendFeedbackState extends State<SendFeedback> {
   String _titleText;
   String _detailsText;
   skillAction _selectedAction;
+  String _recipientUID;
 
   bool _validateTitle = false;
   bool _validateDetails = false;
@@ -76,17 +82,29 @@ class _SendFeedbackState extends State<SendFeedback> {
                   bigTitle: 'New Request',
                   verticalPadding: 90,
                 ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios),
-                    color: Colors.grey[700],
-                    iconSize: 20.0,
-                    padding: EdgeInsets.only(left: 15.0, bottom: 20.0),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios),
+                      color: Colors.grey[700],
+                      iconSize: 20.0,
+                      //  padding: EdgeInsets.only(left: 15.0, bottom: 20.0),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.times,
+                          color: Colors.grey[700],
+                          size: 20.0,
+                        ),
+                        onPressed: () {
+                          _auth.signOut();
+                          Navigator.pushNamed(context, LogIn.id);
+                        })
+                  ],
                 ),
                 Container(
                   padding: EdgeInsets.all(18.0),
@@ -348,7 +366,7 @@ class _SendFeedbackState extends State<SendFeedback> {
                         alignment: Alignment.bottomRight,
                         child: RoundedButton(
                           label: 'Send',
-                          onPressed: () {
+                          onPressed: () async {
                             if (titleController.text.isEmpty ||
                                 detailsController.text.isEmpty ||
                                 _skillName ==
@@ -390,8 +408,17 @@ class _SendFeedbackState extends State<SendFeedback> {
                                 ));
                               }
                             } else {
+                              var result = await Firestore.instance
+                                  .collection('users')
+                                  .where('complete_name',
+                                      isEqualTo: _recipientName)
+                                  .getDocuments();
+                              result.documents.forEach((res) {
+                                _recipientUID = res.data['UID'];
+                              });
+
                               _firestore.collection('feedback').add({
-                                'recipient': _recipientName,
+                                'recipient': _recipientUID,
                                 'skill': _skillName,
                                 'title': _titleText,
                                 'details': _detailsText,

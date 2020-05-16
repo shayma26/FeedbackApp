@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
+import 'registration.dart';
+import 'no_received_feedback.dart';
+import 'received_feedback.dart';
 import 'package:askforfeedback/feedback_const.dart';
 import '../components/custom_text_field.dart';
 import '../components/rounded_button.dart';
 import '../components/text_link.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../feedback_class.dart';
 
 class LogIn extends StatefulWidget {
+  static String id = 'login';
+
   @override
   _LogInState createState() => _LogInState();
 }
 
 class _LogInState extends State<LogIn> {
+  List<Map<String, dynamic>> myFeedbacks = [];
+
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  List<Map<String, dynamic>> notifications = [];
 
   bool showSpinner = false;
 
   final _auth = FirebaseAuth.instance;
+  FirebaseUser _loggedInUser;
 
   @override
   Widget build(BuildContext context) {
@@ -99,19 +110,40 @@ class _LogInState extends State<LogIn> {
                           email: _emailController.text,
                           password: _passwordController.text);
                       if (user != null) {
-                        Navigator.pushNamed(context, 'noreceivedfeedback');
+                        _loggedInUser = await _auth.currentUser();
+
+                        //search if loggedInUser has received feedback
+
+                        var result = await Firestore.instance
+                            .collection('feedback')
+                            .where('recipient', isEqualTo: _loggedInUser.uid)
+                            .getDocuments();
+                        result.documents.forEach((res) {
+                          if (!notifications.contains(res.data))
+                            notifications.add(res.data);
+                        });
+
+                        if (notifications.isEmpty) {
+                          Navigator.pushNamed(context, NoReceivedFeedback.id);
+                        } else {
+                          print(notifications);
+                          Navigator.pushNamed(
+                            context,
+                            ReceivedFeedback.id,
+                          );
+                        }
+                        setState(() {
+                          showSpinner = false;
+                        });
                         _emailController.clear();
                         _passwordController.clear();
                       }
-                      setState(() {
-                        showSpinner = false;
-                      });
                     },
                   ),
                   TextLink(
                     text: 'Don\'t have an account? Create one ▸',
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pushNamed(context, Register.id);
                     },
                   )
                 ],

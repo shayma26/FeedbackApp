@@ -8,8 +8,11 @@ import '../components/text_link.dart';
 import 'package:askforfeedback/feedback_const.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'no_received_feedback.dart';
 
 class Register extends StatefulWidget {
+  static String id = 'registration';
+
   @override
   _RegisterState createState() => _RegisterState();
 }
@@ -109,12 +112,12 @@ class _RegisterState extends State<Register> {
 
                       if (newUser != null) {
                         _newUser.collection('users').add({
-                          'first_name': _firstNameController.text,
-                          'last_name': _lastNameController.text,
+                          'complete_name':
+                              '${_firstNameController.text} ${_lastNameController.text}',
                           'UID': loggedInUser.uid,
                         });
 
-                        Navigator.pushNamed(context, 'noreceivedfeedback');
+                        Navigator.pushNamed(context, NoReceivedFeedback.id);
                         _firstNameController.clear();
                         _lastNameController.clear();
                         _emailController.clear();
