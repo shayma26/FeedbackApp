@@ -4,6 +4,7 @@ import 'ui/send_screen.dart';
 import 'ui/registration.dart';
 import 'ui/no_received_feedback.dart';
 import 'ui/login.dart';
+import 'ui/forgot_password.dart';
 
 class AskForFeedback extends StatelessWidget {
   @override
@@ -12,13 +13,14 @@ class AskForFeedback extends StatelessWidget {
       title: 'Ask For Feedback',
       theme: ThemeData(fontFamily: 'Poppins'),
       routes: {
+        ForgotPassword.id: (context) => ForgotPassword(),
         Register.id: (context) => Register(),
         LogIn.id: (context) => LogIn(),
         NoReceivedFeedback.id: (context) => NoReceivedFeedback(),
         ReceivedFeedback.id: (context) => ReceivedFeedback(),
         SendFeedback.id: (context) => SendFeedback(),
       },
-      initialRoute: LogIn.id,
+      initialRoute: Register.id,
     );
   }
 }

@@ -7,8 +7,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../components/rounded_button.dart';
 import '../components/important_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../feedback_class.dart';
 import 'login.dart';
+import 'received_feedback.dart';
+
+enum skillAction { stop_that, keep_doing, take_action }
 
 final _firestore = Firestore.instance;
 final _auth = FirebaseAuth.instance;
@@ -27,6 +29,9 @@ void getCurrentUser() async {
 
 class SendFeedback extends StatefulWidget {
   static String id = 'sendfeedback';
+  static void signOut() {
+    _auth.signOut();
+  }
 
   @override
   _SendFeedbackState createState() => _SendFeedbackState();
@@ -53,7 +58,7 @@ class _SendFeedbackState extends State<SendFeedback> {
   String _detailsText;
   skillAction _selectedAction;
   String _recipientUID;
-
+  String _senderName;
   bool _validateTitle = false;
   bool _validateDetails = false;
   bool showSnackBar = false;
@@ -96,12 +101,13 @@ class _SendFeedbackState extends State<SendFeedback> {
                     ),
                     IconButton(
                         icon: Icon(
-                          FontAwesomeIcons.times,
+                          FontAwesomeIcons.signOutAlt,
                           color: Colors.grey[700],
                           size: 20.0,
                         ),
                         onPressed: () {
                           _auth.signOut();
+                          ReceivedFeedback.signOut();
                           Navigator.pushNamed(context, LogIn.id);
                         })
                   ],
@@ -408,13 +414,21 @@ class _SendFeedbackState extends State<SendFeedback> {
                                 ));
                               }
                             } else {
-                              var result = await Firestore.instance
+                              var searchRecipientUID = await Firestore.instance
                                   .collection('users')
                                   .where('complete_name',
                                       isEqualTo: _recipientName)
                                   .getDocuments();
-                              result.documents.forEach((res) {
+                              searchRecipientUID.documents.forEach((res) {
                                 _recipientUID = res.data['UID'];
+                              });
+
+                              var searchSenderName = await Firestore.instance
+                                  .collection('users')
+                                  .where('UID', isEqualTo: _loggedInUser.uid)
+                                  .getDocuments();
+                              searchSenderName.documents.forEach((res) {
+                                _senderName = res.data['complete_name'];
                               });
 
                               _firestore.collection('feedback').add({
@@ -423,7 +437,7 @@ class _SendFeedbackState extends State<SendFeedback> {
                                 'title': _titleText,
                                 'details': _detailsText,
                                 'action': _selectedAction.toString(),
-                                'sender': _loggedInUser.uid,
+                                'sender': _senderName,
                               });
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Row(children: <Widget>[

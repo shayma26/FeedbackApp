@@ -9,6 +9,7 @@ import 'package:askforfeedback/feedback_const.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'no_received_feedback.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class Register extends StatefulWidget {
   static String id = 'registration';
@@ -26,6 +27,54 @@ class _RegisterState extends State<Register> {
   final _newUser = Firestore.instance;
   final _auth = FirebaseAuth.instance;
   bool showSpinner = false;
+  String _warning;
+
+  Widget showAlert() {
+    if (_warning != null) {
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 13.0),
+        color: Colors.blue,
+        width: double.infinity,
+        padding: EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Icon(
+                Icons.error_outline,
+                color: Colors.white,
+                size: 30.0,
+              ),
+            ),
+            Expanded(
+              child: AutoSizeText(
+                _warning,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.0,
+                ),
+                maxLines: 3,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _warning = null;
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+      );
+    }
+    return SizedBox(
+      height: 0,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +122,7 @@ class _RegisterState extends State<Register> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
+                showAlert(),
                 CustomTextField(
                   labelController: _firstNameController,
                   labelName: 'First Name',
@@ -125,10 +175,11 @@ class _RegisterState extends State<Register> {
                       }
                     } catch (e) {
                       print(e);
+                      setState(() {
+                        showSpinner = false;
+                        _warning = e.message;
+                      });
                     }
-                    setState(() {
-                      showSpinner = false;
-                    });
                   },
                 ),
                 TextLink(

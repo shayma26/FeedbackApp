@@ -9,7 +9,8 @@ import '../components/text_link.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../feedback_class.dart';
+import 'forgot_password.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class LogIn extends StatefulWidget {
   static String id = 'login';
@@ -19,7 +20,7 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
-  List<Map<String, dynamic>> myFeedbacks = [];
+  String _warning;
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
@@ -29,6 +30,53 @@ class _LogInState extends State<LogIn> {
 
   final _auth = FirebaseAuth.instance;
   FirebaseUser _loggedInUser;
+
+  Widget showAlert() {
+    if (_warning != null) {
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 13.0),
+        color: Colors.blue,
+        width: double.infinity,
+        padding: EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Icon(
+                Icons.error_outline,
+                color: Colors.white,
+                size: 30.0,
+              ),
+            ),
+            Expanded(
+              child: AutoSizeText(
+                _warning,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.0,
+                ),
+                maxLines: 3,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _warning = null;
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+      );
+    }
+    return SizedBox(
+      height: 0,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +124,7 @@ class _LogInState extends State<LogIn> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
+                  showAlert(),
                   CustomTextField(
                     labelController: _emailController,
                     labelName: 'Email',
@@ -92,25 +141,44 @@ class _LogInState extends State<LogIn> {
                       text: 'Forgot Password',
                       verticalPadding: 0.0,
                       textSize: 14.0,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, ForgotPassword.id);
+
+                        //*****************************************
+                        setState(() {
+                          _warning =
+                              "A password reset link has been sent to your email";
+                        });
+                      },
                     ),
                   ),
                   SizedBox(
                     height: 40,
                   ),
                   RoundedButton(
-                    label: 'Login',
-                    labelSize: 18.0,
-                    width: 222,
-                    onPressed: () async {
-                      setState(() {
-                        showSpinner = true;
-                      });
-                      final user = await _auth.signInWithEmailAndPassword(
-                          email: _emailController.text,
-                          password: _passwordController.text);
-                      if (user != null) {
-                        _loggedInUser = await _auth.currentUser();
+                      label: 'Login',
+                      labelSize: 18.0,
+                      width: 222,
+                      onPressed: () async {
+                        setState(() {
+                          showSpinner = true;
+                        });
+
+                        try {
+                          final user = await _auth.signInWithEmailAndPassword(
+                              email: _emailController.text,
+                              password: _passwordController.text);
+
+                          if (user != null)
+                            _loggedInUser = await _auth.currentUser();
+                        } catch (e) {
+                          setState(() {
+                            showSpinner = false;
+                          });
+                          setState(() {
+                            _warning = e.message;
+                          });
+                        }
 
                         //search if loggedInUser has received feedback
 
@@ -132,20 +200,15 @@ class _LogInState extends State<LogIn> {
                             ReceivedFeedback.id,
                           );
                         }
-                        setState(() {
-                          showSpinner = false;
-                        });
+
                         _emailController.clear();
                         _passwordController.clear();
-                      }
-                    },
-                  ),
+                      }),
                   TextLink(
-                    text: 'Don\'t have an account? Create one ▸',
-                    onTap: () {
-                      Navigator.pushNamed(context, Register.id);
-                    },
-                  )
+                      text: 'Don\'t have an account? Create one ▸',
+                      onTap: () {
+                        Navigator.pushNamed(context, Register.id);
+                      })
                 ],
               ),
             ),

@@ -22,13 +22,20 @@ class NoReceivedFeedback extends StatelessWidget {
         width: 170,
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          SizedBox(
+            height: 40.0,
+          ),
           ImportantTitle(
             biggerTitle: 'Received Feedback',
             bigTitle: 'No Feedback yet',
-            verticalPadding: 70,
+            verticalPadding: 30,
           ),
-          Center(child: Image.asset('images/nofeedback.png')),
+          Flexible(
+            flex: 2,
+            child: Image.asset('images/nofeedback.png'),
+          ),
         ],
       ),
     );
