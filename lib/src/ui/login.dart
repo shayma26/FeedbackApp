@@ -55,7 +55,7 @@ class _LogInState extends State<LogIn> {
                   color: Colors.white,
                   fontSize: 15.0,
                 ),
-                maxLines: 3,
+                maxLines: 4,
               ),
             ),
             Padding(

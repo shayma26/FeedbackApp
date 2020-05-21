@@ -53,7 +53,7 @@ class _RegisterState extends State<Register> {
                   color: Colors.white,
                   fontSize: 15.0,
                 ),
-                maxLines: 3,
+                maxLines: 4,
               ),
             ),
             Padding(

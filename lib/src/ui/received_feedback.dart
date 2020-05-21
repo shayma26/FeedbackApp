@@ -8,6 +8,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'login.dart';
 
+var stream;
+
+void getStream() async {
+  stream = Firestore.instance
+      .collection('feedback')
+      .where('recipient', isEqualTo: _loggedInUser.uid)
+      .getDocuments();
+}
+
+final _auth = FirebaseAuth.instance;
+FirebaseUser _loggedInUser;
+
+List<Map<String, dynamic>> notifications = [];
+
 class ReceivedFeedback extends StatefulWidget {
   static String id = 'receivedfeedback';
   static void signOut() {
@@ -17,15 +31,6 @@ class ReceivedFeedback extends StatefulWidget {
   @override
   _ReceivedFeedbackState createState() => _ReceivedFeedbackState();
 }
-
-void reload() async {
-  _loggedInUser.reload();
-}
-
-final _auth = FirebaseAuth.instance;
-FirebaseUser _loggedInUser;
-
-List<Map<String, dynamic>> notifications = [];
 
 class _ReceivedFeedbackState extends State<ReceivedFeedback> {
   void getCurrentUser() async {
@@ -69,6 +74,16 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
             expandedHeight: 170,
             actions: <Widget>[
               IconButton(
+                icon: Icon(
+                  Icons.refresh,
+                  color: Colors.grey,
+                ),
+                tooltip: 'Tap to refresh',
+                onPressed: () {
+                  setState(() {});
+                },
+              ),
+              IconButton(
                   icon: Icon(
                     FontAwesomeIcons.signOutAlt,
                     color: Colors.grey[700],
@@ -81,6 +96,7 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
                   }),
             ],
             flexibleSpace: FlexibleSpaceBar(
+              centerTitle: true,
               title: Text(
                 'Received Feedback',
                 style: TextStyle(
@@ -106,18 +122,28 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
   }
 }
 
-class FeedbackStream extends StatelessWidget {
-  void getStream() async {
-    stream = Firestore.instance
-        .collection('feedback')
-        .where('recipient', isEqualTo: _loggedInUser.uid)
-        .getDocuments();
+//**********************************
+
+class FeedbackStream extends StatefulWidget {
+  @override
+  _FeedbackStreamState createState() => _FeedbackStreamState();
+}
+
+class _FeedbackStreamState extends State<FeedbackStream> {
+  @override
+  void initState() {
+    super.initState();
+    getStream();
   }
 
-  Future stream;
+  @override
+  void didUpdateWidget(FeedbackStream oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    getStream();
+  }
+
   @override
   Widget build(BuildContext context) {
-    getStream();
     return FutureBuilder(
       future: stream,
       builder: (context, snapshot) {
@@ -205,9 +231,13 @@ class FeedbackStream extends StatelessWidget {
             children: feedbackWidgets,
           );
         } else {
-          reload();
-          return CircularProgressIndicator();
-        }
+          didUpdateWidget(FeedbackStream());
+          return Column(
+            children: <Widget>[
+              CircularProgressIndicator(),
+            ],
+          );
+        } //****************************
       },
     );
   }
