@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-class Member {
-  Member({this.completeName});
+class User {
+  User({this.completeName});
   String completeName;
 }
 
-bool isThere({List<Member> list, Member member}) {
+bool isThere({List<User> list, User user}) {
   for (var item in list) {
-    if (item.completeName == member.completeName) {
+    if (item.completeName == user.completeName) {
       return true;
     }
   }
   return false;
 }
 
-Widget getListTile({Member member, Function onTap}) {
+Widget getListTile({User user, Function onTap}) {
   return ListTile(
     title: Text(
-      '${member.completeName}',
+      '${user.completeName}',
       style: TextStyle(fontSize: 16),
     ),
     onTap: onTap,

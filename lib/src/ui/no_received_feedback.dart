@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:askforfeedback/feedback_const.dart';
-import '../components/important_title.dart';
-import '../components/rounded_button.dart';
+import 'package:askforfeedback/src/data/_constants.dart';
+import 'components/important_title.dart';
+import 'components/rounded_button.dart';
 import 'send_screen.dart';
 
 class NoReceivedFeedback extends StatelessWidget {

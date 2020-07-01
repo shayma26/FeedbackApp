@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:askforfeedback/feedback_const.dart';
+import 'package:askforfeedback/src/data/_constants.dart';
 
 class CustomTextField extends StatefulWidget {
   CustomTextField(
       {@required this.labelController,
       @required this.labelName,
+      this.onChanged,
       this.obscure = false,
       this.textType = TextInputType.text});
 
@@ -12,6 +13,7 @@ class CustomTextField extends StatefulWidget {
   final String labelName;
   final bool obscure;
   final TextInputType textType;
+  final Function onChanged;
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
@@ -29,7 +31,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   void _onFocusChange() {
     setState(() {
-      selected = selected ? false : true;
+      selected = !selected;
     });
   }
 
@@ -54,6 +56,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           Container(
             height: 35,
             child: TextField(
+              onChanged: widget.onChanged,
               obscureText: widget.obscure,
               keyboardType: widget.textType,
               decoration: kTextFieldDecoration,

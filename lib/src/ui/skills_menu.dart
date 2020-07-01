@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import '../components/large_flat_button.dart';
+import 'components/large_flat_button.dart';
+import '../data/skillsTitlesAndActions.dart';
 
 class SkillsMenu extends StatefulWidget {
   @override
@@ -11,16 +12,6 @@ class _SkillsMenuState extends State<SkillsMenu> {
   void selectItem(String name) {
     Navigator.pop(context, name);
   }
-
-  List<String> skills = [
-    'One skill',
-    'Important Skill',
-    'A skill with a really really really really really long name',
-    'Another skill',
-    'Name a skill',
-    'A skill with really really really really really long name',
-    'just pick one',
-  ];
 
   Widget getButtonWidgets(List<String> strings) {
     List<Widget> list = List<Widget>();
@@ -76,7 +67,7 @@ class _SkillsMenuState extends State<SkillsMenu> {
                 ),
               ),
             ),
-            Expanded(child: getButtonWidgets(skills)),
+            Expanded(child: getButtonWidgets(Skills)),
           ],
         ),
       ),

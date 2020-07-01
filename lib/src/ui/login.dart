@@ -2,81 +2,31 @@ import 'package:flutter/material.dart';
 import 'registration.dart';
 import 'no_received_feedback.dart';
 import 'received_feedback.dart';
-import 'package:askforfeedback/feedback_const.dart';
-import '../components/custom_text_field.dart';
-import '../components/rounded_button.dart';
-import '../components/text_link.dart';
+import 'package:askforfeedback/src/data/_constants.dart';
+import 'components/custom_text_field.dart';
+import 'components/rounded_button.dart';
+import 'components/text_link.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'forgot_password.dart';
-import 'package:auto_size_text/auto_size_text.dart';
+import 'components/showAlert.dart';
 
 class LogIn extends StatefulWidget {
   static String id = 'login';
-
   @override
   _LogInState createState() => _LogInState();
 }
 
 class _LogInState extends State<LogIn> {
-  String _warning;
-
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  List<Map<String, dynamic>> notifications = [];
+  List<Map<String, dynamic>> receivedFeedback = [];
 
   bool showSpinner = false;
 
   final _auth = FirebaseAuth.instance;
   FirebaseUser _loggedInUser;
-
-  Widget showAlert() {
-    if (_warning != null) {
-      return Container(
-        margin: EdgeInsets.symmetric(vertical: 13.0),
-        color: Colors.blue,
-        width: double.infinity,
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Icon(
-                Icons.error_outline,
-                color: Colors.white,
-                size: 30.0,
-              ),
-            ),
-            Expanded(
-              child: AutoSizeText(
-                _warning,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15.0,
-                ),
-                maxLines: 4,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  setState(() {
-                    _warning = null;
-                  });
-                },
-              ),
-            )
-          ],
-        ),
-      );
-    }
-    return SizedBox(
-      height: 0,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +74,7 @@ class _LogInState extends State<LogIn> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  showAlert(),
+                  ShowAlert(),
                   CustomTextField(
                     labelController: _emailController,
                     labelName: 'Email',
@@ -143,12 +93,6 @@ class _LogInState extends State<LogIn> {
                       textSize: 14.0,
                       onTap: () {
                         Navigator.pushNamed(context, ForgotPassword.id);
-
-                        //*****************************************
-                        setState(() {
-                          _warning =
-                              "A password reset link has been sent to your email";
-                        });
                       },
                     ),
                   ),
@@ -156,54 +100,57 @@ class _LogInState extends State<LogIn> {
                     height: 40,
                   ),
                   RoundedButton(
-                      label: 'Login',
-                      labelSize: 18.0,
-                      width: 222,
-                      onPressed: () async {
+                    label: 'Login',
+                    labelSize: 18.0,
+                    width: 222,
+                    //*****************************************>>>
+                    onPressed: () async {
+                      setState(() {
+                        showSpinner = true;
+                      });
+
+                      try {
+                        final user = await _auth.signInWithEmailAndPassword(
+                            email: _emailController.text,
+                            password: _passwordController.text);
+
+                        if (user != null)
+                          _loggedInUser = await _auth.currentUser();
+                      } catch (e) {
                         setState(() {
-                          showSpinner = true;
+                          showSpinner = false;
                         });
-
-                        try {
-                          final user = await _auth.signInWithEmailAndPassword(
-                              email: _emailController.text,
-                              password: _passwordController.text);
-
-                          if (user != null)
-                            _loggedInUser = await _auth.currentUser();
-                        } catch (e) {
-                          setState(() {
-                            showSpinner = false;
-                          });
-                          setState(() {
-                            _warning = e.message;
-                          });
-                        }
-
-                        //search if loggedInUser has received feedback
-
-                        var result = await Firestore.instance
-                            .collection('feedback')
-                            .where('recipient', isEqualTo: _loggedInUser.uid)
-                            .getDocuments();
-                        result.documents.forEach((res) {
-                          if (!notifications.contains(res.data))
-                            notifications.add(res.data);
+                        setState(() {
+                          ShowAlert.warning = e.message;
                         });
+                      }
 
-                        if (notifications.isEmpty) {
-                          Navigator.pushNamed(context, NoReceivedFeedback.id);
-                        } else {
-                          print(notifications);
-                          Navigator.pushNamed(
-                            context,
-                            ReceivedFeedback.id,
-                          );
-                        }
+                      //search if loggedInUser has received feedback
 
-                        _emailController.clear();
-                        _passwordController.clear();
-                      }),
+                      var result = await Firestore.instance
+                          .collection('feedback')
+                          .where('recipient', isEqualTo: _loggedInUser.uid)
+                          .getDocuments();
+
+                      result.documents.forEach((res) {
+                        if (!receivedFeedback.contains(res.data))
+                          receivedFeedback.add(res.data);
+                      });
+
+                      if (receivedFeedback.isEmpty) {
+                        Navigator.pushNamed(context, NoReceivedFeedback.id);
+                      } else {
+                        Navigator.pushNamed(
+                          context,
+                          ReceivedFeedback.id,
+                        );
+                      }
+
+                      _emailController.clear();
+                      _passwordController.clear();
+                    },
+                    //<<<<*****************************************
+                  ),
                   TextLink(
                       text: 'Don\'t have an account? Create one ▸',
                       onTap: () {

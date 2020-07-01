@@ -1,11 +1,11 @@
+import 'package:askforfeedback/src/ui/components/showAlert.dart';
 import 'package:askforfeedback/src/ui/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:askforfeedback/feedback_const.dart';
+import 'package:askforfeedback/src/data/_constants.dart';
 import 'package:flutter/widgets.dart';
-import '../components/rounded_button.dart';
+import 'components/rounded_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 class ForgotPassword extends StatefulWidget {
   static String id = 'forgotpassword';
@@ -16,55 +16,6 @@ class ForgotPassword extends StatefulWidget {
 final _auth = FirebaseAuth.instance;
 
 class _ForgotPasswordState extends State<ForgotPassword> {
-  String _warning;
-
-  Widget showAlert() {
-    if (_warning != null) {
-      return Container(
-        margin: EdgeInsets.symmetric(vertical: 13.0),
-        color: Colors.blue,
-        width: double.infinity,
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Icon(
-                Icons.error_outline,
-                color: Colors.white,
-                size: 30.0,
-              ),
-            ),
-            Expanded(
-              child: AutoSizeText(
-                _warning,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15.0,
-                ),
-                maxLines: 3,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  setState(() {
-                    _warning = null;
-                  });
-                },
-              ),
-            )
-          ],
-        ),
-      );
-    }
-    return SizedBox(
-      height: 0,
-    );
-  }
-
   TextEditingController email = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -88,7 +39,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               ),
               child: Column(
                 children: <Widget>[
-                  showAlert(),
+                  ShowAlert(),
                   Row(
                     children: <Widget>[
                       IconButton(
@@ -139,8 +90,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     child: RoundedButton(
                       onPressed: () {
                         _auth.sendPasswordResetEmail(email: email.text);
-
                         Navigator.pop(context);
+                        ShowAlert.warning =
+                            "A password reset link has been sent to your email";
                       },
                       label: 'Reset Password',
                       width: MediaQuery.of(context).size.width * 0.55,

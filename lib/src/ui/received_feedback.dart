@@ -1,17 +1,15 @@
-import 'package:askforfeedback/src/components/rounded_button.dart';
+import 'components/rounded_button.dart';
 import 'package:askforfeedback/src/ui/send_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:askforfeedback/feedback_const.dart';
+import 'package:askforfeedback/src/data/_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'login.dart';
 
-var stream;
-
-void getStream() async {
-  stream = Firestore.instance
+Future getFuture() async {
+  return Firestore.instance
       .collection('feedback')
       .where('recipient', isEqualTo: _loggedInUser.uid)
       .getDocuments();
@@ -76,7 +74,8 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
               IconButton(
                 icon: Icon(
                   Icons.refresh,
-                  color: Colors.grey,
+                  color: Colors.grey[700],
+                  size: 26,
                 ),
                 tooltip: 'Tap to refresh',
                 onPressed: () {
@@ -89,6 +88,7 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
                     color: Colors.grey[700],
                     size: 20.0,
                   ),
+                  tooltip: 'Tap to sign-out',
                   onPressed: () {
                     _auth.signOut();
                     SendFeedback.signOut();
@@ -131,33 +131,17 @@ class FeedbackStream extends StatefulWidget {
 
 class _FeedbackStreamState extends State<FeedbackStream> {
   @override
-  void initState() {
-    super.initState();
-    getStream();
-  }
-
-  @override
-  void didUpdateWidget(FeedbackStream oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    getStream();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: stream,
+      future: getFuture(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            return AlertDialog(
-              title: Text(
-                'Something went wrong !',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.0),
-              ),
-              shape: CircleBorder(),
-            );
-          }
+        if (snapshot.hasError) {
+          return Text(
+            'Something went wrong !\nTry to reload page',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.0),
+          );
+        } else if (snapshot.connectionState == ConnectionState.done) {
           final feedback = snapshot.data.documents;
           List<Widget> feedbackWidgets = [];
           for (var item in feedback) {
@@ -175,13 +159,13 @@ class _FeedbackStreamState extends State<FeedbackStream> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(23)),
                 child: ExpansionTile(
-                  leading: 'skillAction.keep_doing' == action
+                  leading: 'keep_doing' == action
                       ? Icon(
                           FontAwesomeIcons.solidCheckCircle,
                           color: Colors.green,
                           size: 37,
                         )
-                      : 'skillAction.take_action' == action
+                      : 'take_action' == action
                           ? Icon(
                               FontAwesomeIcons.exclamationCircle,
                               color: Colors.orange,
@@ -198,20 +182,24 @@ class _FeedbackStreamState extends State<FeedbackStream> {
                         fontWeight: FontWeight.w600, color: Colors.blue),
                   ),
                   subtitle: RichText(
-                    text: TextSpan(children: <TextSpan>[
-                      TextSpan(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
                           text: '$title\n',
                           style: TextStyle(
                               fontSize: 17,
                               color: Colors.black,
-                              fontWeight: FontWeight.w500)),
-                      TextSpan(
+                              fontWeight: FontWeight.w500),
+                        ),
+                        TextSpan(
                           text: sender,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 15.0,
-                          )),
-                    ]),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   children: <Widget>[
                     Text(
@@ -231,10 +219,13 @@ class _FeedbackStreamState extends State<FeedbackStream> {
             children: feedbackWidgets,
           );
         } else {
-          didUpdateWidget(FeedbackStream());
           return Column(
             children: <Widget>[
               CircularProgressIndicator(),
+              Text(
+                'Loading...',
+                style: TextStyle(fontSize: 25),
+              ),
             ],
           );
         } //****************************

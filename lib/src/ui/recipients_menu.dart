@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../member.dart';
+import '../data/user.dart';
 import 'package:search_widget/search_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final _firestore = Firestore.instance;
 String selectedRecipient;
-List<Member> allMembers = [];
+List<User> allMembers = [];
 
 class RecipientsMenu extends StatefulWidget {
   @override
@@ -97,11 +97,10 @@ class UsersStream extends StatelessWidget {
         List<Widget> usersWidgets = [];
         for (var user in users) {
           String completeName = user.data['complete_name'];
-          final member = Member(
+          final member = User(
             completeName: completeName,
           );
-          if (!isThere(list: allMembers, member: member))
-            allMembers.add(member);
+          if (!isThere(list: allMembers, user: member)) allMembers.add(member);
           usersWidgets.add(
             ListTile(
               title: Text(
@@ -124,17 +123,17 @@ class UsersStream extends StatelessWidget {
 }
 
 class PopupListItemWidget extends StatelessWidget {
-  const PopupListItemWidget(this.member);
+  const PopupListItemWidget(this.user);
 
-  final Member member;
+  final User user;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: getListTile(
-        member: member,
+        user: user,
         onTap: () {
-          selectedRecipient = member.completeName;
+          selectedRecipient = user.completeName;
           Navigator.pop(context, selectedRecipient);
         },
       ),

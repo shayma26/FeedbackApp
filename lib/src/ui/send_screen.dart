@@ -1,16 +1,14 @@
 import 'package:askforfeedback/src/ui/skills_menu.dart';
 import 'package:flutter/material.dart';
 import 'recipients_menu.dart';
-import '../../feedback_const.dart';
+import '../data/_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../components/rounded_button.dart';
-import '../components/important_title.dart';
+import 'components/rounded_button.dart';
+import 'components/important_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
 import 'received_feedback.dart';
-
-enum skillAction { stop_that, keep_doing, take_action }
 
 final _firestore = Firestore.instance;
 final _auth = FirebaseAuth.instance;
@@ -56,7 +54,7 @@ class _SendFeedbackState extends State<SendFeedback> {
   String _skillName = 'Choose the skill you want to receive feedback on';
   String _titleText;
   String _detailsText;
-  skillAction _selectedAction;
+  String _selectedAction;
   String _recipientUID;
   String _senderName;
   bool _validateTitle = false;
@@ -232,27 +230,26 @@ class _SendFeedbackState extends State<SendFeedback> {
                                       label: Text(
                                         'Stop That',
                                         style: TextStyle(
-                                            color: _selectedAction ==
-                                                    skillAction.stop_that
-                                                ? Colors.white
-                                                : Colors.black),
+                                            color:
+                                                _selectedAction == "stop_that"
+                                                    ? Colors.white
+                                                    : Colors.black),
                                       ),
-                                      backgroundColor: _selectedAction ==
-                                              skillAction.stop_that
-                                          ? Colors.red
-                                          : Colors.transparent,
+                                      backgroundColor:
+                                          _selectedAction == "stop_that"
+                                              ? Colors.red
+                                              : Colors.transparent,
                                       shape: StadiumBorder(
                                           side: BorderSide(color: Colors.red)),
                                       avatar: Icon(
                                         FontAwesomeIcons.times,
-                                        color: _selectedAction ==
-                                                skillAction.stop_that
+                                        color: _selectedAction == "stop_that"
                                             ? Colors.white
                                             : Colors.red,
                                       ),
                                       selected: false,
                                       onSelected: (bool selected) {
-                                        _selectedAction = skillAction.stop_that;
+                                        _selectedAction = "stop_that";
                                         setState(() {});
                                       },
                                       selectedColor: Colors.red,
@@ -262,28 +259,27 @@ class _SendFeedbackState extends State<SendFeedback> {
                                           'Take Action',
                                           style: TextStyle(
                                               color: _selectedAction ==
-                                                      skillAction.take_action
+                                                      "take_action"
                                                   ? Colors.white
                                                   : Colors.black),
                                         ),
                                         avatar: Icon(
                                           FontAwesomeIcons.exclamation,
-                                          color: _selectedAction ==
-                                                  skillAction.take_action
-                                              ? Colors.white
-                                              : Colors.orange,
+                                          color:
+                                              _selectedAction == "take_action"
+                                                  ? Colors.white
+                                                  : Colors.orange,
                                         ),
-                                        backgroundColor: _selectedAction ==
-                                                skillAction.take_action
-                                            ? Colors.orange
-                                            : Colors.transparent,
+                                        backgroundColor:
+                                            _selectedAction == "take_action"
+                                                ? Colors.orange
+                                                : Colors.transparent,
                                         shape: StadiumBorder(
                                             side: BorderSide(
                                                 color: Colors.orange)),
                                         selected: false,
                                         onSelected: (bool selected) {
-                                          _selectedAction =
-                                              skillAction.take_action;
+                                          _selectedAction = "take_action";
                                           setState(() {});
                                         }),
                                     ChoiceChip(
@@ -291,28 +287,26 @@ class _SendFeedbackState extends State<SendFeedback> {
                                           'Keep Doing',
                                           style: TextStyle(
                                               color: _selectedAction ==
-                                                      skillAction.keep_doing
+                                                      "keep_doing"
                                                   ? Colors.white
                                                   : Colors.black),
                                         ),
                                         avatar: Icon(
                                           FontAwesomeIcons.check,
-                                          color: _selectedAction ==
-                                                  skillAction.keep_doing
+                                          color: _selectedAction == "keep_doing"
                                               ? Colors.white
                                               : Colors.green,
                                         ),
-                                        backgroundColor: _selectedAction ==
-                                                skillAction.keep_doing
-                                            ? Colors.green
-                                            : Colors.transparent,
+                                        backgroundColor:
+                                            _selectedAction == "keep_doing"
+                                                ? Colors.green
+                                                : Colors.transparent,
                                         shape: StadiumBorder(
                                             side: BorderSide(
                                                 color: Colors.green)),
                                         selected: false,
                                         onSelected: (bool selected) {
-                                          _selectedAction =
-                                              skillAction.keep_doing;
+                                          _selectedAction = "keep_doing";
                                           setState(() {});
                                         }),
                                   ],
@@ -436,7 +430,7 @@ class _SendFeedbackState extends State<SendFeedback> {
                                 'skill': _skillName,
                                 'title': _titleText,
                                 'details': _detailsText,
-                                'action': _selectedAction.toString(),
+                                'action': _selectedAction,
                                 'sender': _senderName,
                               });
                               Scaffold.of(context).showSnackBar(SnackBar(
