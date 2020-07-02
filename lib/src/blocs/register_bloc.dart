@@ -10,6 +10,7 @@ class RegisterBloc {
   final _lastName = BehaviorSubject<String>();
   final _password = BehaviorSubject<String>();
   final _isSignedUp = BehaviorSubject<bool>();
+  final _showProgressBar = BehaviorSubject<bool>();
 
   Stream<String> get email => _email.stream.transform(_validateEmail);
 
@@ -23,6 +24,8 @@ class RegisterBloc {
 
   String get emailAddress => _email.value;
 
+  Stream<bool> get progressBarStatus => _showProgressBar.stream;
+
   // Change data
   Function(String) get changeEmail => _email.sink.add;
 
@@ -32,7 +35,9 @@ class RegisterBloc {
 
   Function(String) get changeLastName => _lastName.sink.add;
 
-  Function(bool) get showProgressBar => _isSignedUp.sink.add;
+  Function(bool) get isSignedUp => _isSignedUp.sink.add;
+
+  Function(bool) get showProgressBar => _showProgressBar.sink.add;
 
   final _validateEmail =
       StreamTransformer<String, String>.fromHandlers(handleData: (email, sink) {
@@ -68,6 +73,8 @@ class RegisterBloc {
     _firstName.close();
     await _lastName.drain();
     _lastName.close();
+    await _showProgressBar.drain();
+    _showProgressBar.close();
   }
 
   bool validateFields() {

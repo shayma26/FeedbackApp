@@ -15,11 +15,23 @@ class FirestoreProvider {
       if (user != null) _loggedInUser = await _auth.currentUser();
     } catch (e) {
       print(e);
-      // ShowAlert.warning = e.message;
-
       return false;
     }
     return true;
+  }
+
+  void signOut() async => await _auth.signOut();
+
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser();
+
+      if (user != null) {
+        _loggedInUser = user;
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<bool> hasFeedback() async {
@@ -36,7 +48,7 @@ class FirestoreProvider {
   }
 
   Future<QuerySnapshot> getFeedback() async {
-    return _firestoreIns
+    return await _firestoreIns
         .collection('feedback')
         .where('recipient', isEqualTo: _loggedInUser.uid)
         .getDocuments();
@@ -98,7 +110,6 @@ class FirestoreProvider {
       }
     } catch (e) {
       print(e);
-      // ShowAlert.warning = e.message;
       return false;
     }
     return true;

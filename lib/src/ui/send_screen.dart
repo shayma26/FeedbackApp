@@ -105,7 +105,7 @@ class _SendFeedbackState extends State<SendFeedback> {
                         ),
                         onPressed: () {
                           _auth.signOut();
-                          ReceivedFeedback.signOut();
+                          // ReceivedFeedback.signOut();
                           Navigator.pushNamed(context, LogIn.id);
                         })
                   ],

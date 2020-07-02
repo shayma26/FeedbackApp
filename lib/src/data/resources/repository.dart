@@ -9,6 +9,10 @@ class Repository {
   Future<bool> authenticateUser(String email, String password) =>
       _firestoreProvider.authenticateUser(email, password);
 
+  void signOut() => _firestoreProvider.signOut();
+
+  void getCurrentUser() => _firestoreProvider.getCurrentUser();
+
   Future<bool> hasFeedback() => _firestoreProvider.hasFeedback();
 
   Future<void> giveFeedback(

@@ -1,3 +1,7 @@
+import 'package:askforfeedback/src/blocs/login_bloc_provider.dart';
+import 'package:askforfeedback/src/blocs/received_feedback_bloc_provider.dart';
+import 'package:askforfeedback/src/blocs/register_bloc_provider.dart';
+import 'package:askforfeedback/src/blocs/send_feedback_bloc_provider.dart';
 import 'package:askforfeedback/src/ui/received_feedback.dart';
 import 'package:flutter/material.dart';
 import 'ui/send_screen.dart';
@@ -9,18 +13,26 @@ import 'ui/forgot_password.dart';
 class AskForFeedback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Ask For Feedback',
-      theme: ThemeData(fontFamily: 'Poppins'),
-      routes: {
-        ForgotPassword.id: (context) => ForgotPassword(),
-        Register.id: (context) => Register(),
-        LogIn.id: (context) => LogIn(),
-        NoReceivedFeedback.id: (context) => NoReceivedFeedback(),
-        ReceivedFeedback.id: (context) => ReceivedFeedback(),
-        SendFeedback.id: (context) => SendFeedback(),
-      },
-      initialRoute: Register.id,
+    return RegisterBlocProvider(
+      child: LoginBlocProvider(
+        child: ReceivedFeedbackBlocProvider(
+          child: FeedbackBlocProvider(
+            child: MaterialApp(
+              title: 'Ask For Feedback',
+              theme: ThemeData(fontFamily: 'Poppins'),
+              routes: {
+                ForgotPassword.id: (context) => ForgotPassword(),
+                Register.id: (context) => Register(),
+                LogIn.id: (context) => LogIn(),
+                NoReceivedFeedback.id: (context) => NoReceivedFeedback(),
+                ReceivedFeedback.id: (context) => ReceivedFeedback(),
+                SendFeedback.id: (context) => SendFeedback(),
+              },
+              initialRoute: Register.id,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

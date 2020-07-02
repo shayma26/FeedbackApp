@@ -3,7 +3,7 @@ import 'package:askforfeedback/src/data/_constants.dart';
 
 class CustomTextField extends StatefulWidget {
   CustomTextField(
-      {@required this.labelController,
+      {this.labelController,
       @required this.labelName,
       this.onChanged,
       this.obscure = false,

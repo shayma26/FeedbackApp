@@ -4,12 +4,12 @@ import '../../blocs/register_bloc_provider.dart';
 import 'custom_text_field.dart';
 import 'rounded_button.dart';
 
-class SignUp extends StatefulWidget {
+class SignUpForm extends StatefulWidget {
   @override
-  _SignUpState createState() => _SignUpState();
+  _SignUpFormState createState() => _SignUpFormState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _SignUpFormState extends State<SignUpForm> {
   RegisterBloc _bloc;
 
   @override
@@ -46,7 +46,6 @@ class _SignUpState extends State<SignUp> {
         stream: _bloc.firstName,
         builder: (context, AsyncSnapshot<String> snapshot) {
           return CustomTextField(
-            labelController: null,
             labelName: "First Name",
             onChanged: _bloc.changeFirstName,
           );
@@ -58,7 +57,6 @@ class _SignUpState extends State<SignUp> {
         stream: _bloc.lastName,
         builder: (context, AsyncSnapshot<String> snapshot) {
           return CustomTextField(
-            labelController: null,
             labelName: "Last Name",
             onChanged: _bloc.changeLastName,
           );
@@ -67,10 +65,9 @@ class _SignUpState extends State<SignUp> {
 
   Widget emailField() {
     return StreamBuilder(
-        stream: _bloc.firstName,
+        stream: _bloc.email,
         builder: (context, AsyncSnapshot<String> snapshot) {
           return CustomTextField(
-            labelController: null,
             labelName: "Email",
             onChanged: _bloc.changeEmail,
             textType: TextInputType.emailAddress,
@@ -80,10 +77,9 @@ class _SignUpState extends State<SignUp> {
 
   Widget passwordField() {
     return StreamBuilder(
-        stream: _bloc.firstName,
+        stream: _bloc.password,
         builder: (context, AsyncSnapshot<String> snapshot) {
           return CustomTextField(
-            labelController: null,
             labelName: "Password",
             onChanged: _bloc.changePassword,
             obscure: true,
@@ -93,9 +89,9 @@ class _SignUpState extends State<SignUp> {
 
   Widget signUpButton() {
     return StreamBuilder(
-        stream: _bloc.signUpStatus,
+        stream: _bloc.progressBarStatus,
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          if (!snapshot.hasData || snapshot.hasError) {
+          if (!snapshot.hasData || snapshot.hasError || !snapshot.data) {
             return button();
           } else {
             return CircularProgressIndicator();
@@ -109,32 +105,36 @@ class _SignUpState extends State<SignUp> {
       labelSize: 18.0,
       width: 222,
       onPressed: () async {
-        try {
-          if (_bloc.validateFields()) {
-            authenticateUser();
-          }
-        } catch (e) {
-          showErrorMessage(e.message);
-        }
+        if (_bloc.validateFields()) {
+          authenticateUser();
+        } else
+          showErrorMessage(
+              "please enter valid information or check password : must be more than 5 characters ");
       },
     );
   }
 
-  void authenticateUser() {
+  void authenticateUser() async {
     _bloc.showProgressBar(true);
-    _bloc.submit().then((value) {
-      Navigator.pushNamed(context, NoReceivedFeedback.id);
-//       Navigator.pushReplacement(
-//              context,
-//              MaterialPageRoute(
-//                  builder: (context) => NoReceivedFeedback()));
-    });
+
+    if (!await _bloc.submit()) {
+      showErrorMessage("account already in use or email badly formatted !");
+    } else {
+      await _bloc.submit().then((value) {
+        Navigator.pushNamed(context, NoReceivedFeedback.id);
+        _bloc.isSignedUp(true);
+      });
+    }
+    _bloc.showProgressBar(false);
   }
 
   void showErrorMessage(String e) {
     final snackbar = SnackBar(
         backgroundColor: Colors.blue,
-        content: Text(e),
+        content: Text(
+          e,
+          style: TextStyle(fontSize: 17),
+        ),
         duration: new Duration(seconds: 2));
     Scaffold.of(context).showSnackBar(snackbar);
   }
