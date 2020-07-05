@@ -1,3 +1,5 @@
+import 'package:askforfeedback/src/blocs/send_feedback_bloc.dart';
+import 'package:askforfeedback/src/blocs/send_feedback_bloc_provider.dart';
 import 'package:askforfeedback/src/ui/skills_menu.dart';
 import 'package:flutter/material.dart';
 import 'recipients_menu.dart';
@@ -8,44 +10,17 @@ import 'components/rounded_button.dart';
 import 'components/important_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
-import 'received_feedback.dart';
-
-final _firestore = Firestore.instance;
-final _auth = FirebaseAuth.instance;
-FirebaseUser _loggedInUser;
-
-void getCurrentUser() async {
-  try {
-    final user = await _auth.currentUser();
-    if (user != null) {
-      _loggedInUser = user;
-    }
-  } catch (e) {
-    print(e);
-  }
-}
 
 class SendFeedback extends StatefulWidget {
   static String id = 'sendfeedback';
-  static void signOut() {
-    _auth.signOut();
-  }
 
   @override
   _SendFeedbackState createState() => _SendFeedbackState();
 }
 
 class _SendFeedbackState extends State<SendFeedback> {
-  Future<String> showMenu(Widget widget, bool isScrolled) async {
-    return await showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        elevation: 5.0,
-        isScrollControlled: isScrolled,
-        context: context,
-        builder: (BuildContext context) {
-          return widget;
-        });
-  }
+
+  FeedbackBloc _bloc;
 
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
@@ -62,9 +37,9 @@ class _SendFeedbackState extends State<SendFeedback> {
   bool showSnackBar = false;
 
   @override
-  void initState() {
-    super.initState();
-    getCurrentUser();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _bloc = FeedbackBlocProvider.of(context);
   }
 
   @override
@@ -73,7 +48,7 @@ class _SendFeedbackState extends State<SendFeedback> {
       backgroundColor: kBackgroundColor,
 
       body: Builder(builder: (context) {
-        //to show snackbar
+        //for showing snackbar
         return ListView(
           children: <Widget>[
             Column(
@@ -85,61 +60,8 @@ class _SendFeedbackState extends State<SendFeedback> {
                   bigTitle: 'New Request',
                   verticalPadding: 90,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(Icons.arrow_back_ios),
-                      color: Colors.grey[700],
-                      iconSize: 20.0,
-                      //  padding: EdgeInsets.only(left: 15.0, bottom: 20.0),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    IconButton(
-                        icon: Icon(
-                          FontAwesomeIcons.signOutAlt,
-                          color: Colors.grey[700],
-                          size: 20.0,
-                        ),
-                        onPressed: () {
-                          _auth.signOut();
-                          // ReceivedFeedback.signOut();
-                          Navigator.pushNamed(context, LogIn.id);
-                        })
-                  ],
-                ),
-                Container(
-                  padding: EdgeInsets.all(18.0),
-                  margin: EdgeInsets.symmetric(vertical: 25.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  child: GestureDetector(
-                    onTap: () async {
-                      var name = await showMenu(RecipientsMenu(), true);
-                      setState(() {
-                        _recipientName = name;
-                      });
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          'Choose a recipient',
-                          textAlign: TextAlign.left,
-                          style: kTitleDecoration.copyWith(fontSize: 16.0),
-                        ),
-                        Text(
-                          _recipientName,
-                          textAlign: TextAlign.left,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+               actions(),
+                chooseRecipient(),
                 Container(
                   padding: EdgeInsets.fromLTRB(8.0, 13.0, 13.0, 13.0),
                   decoration: BoxDecoration(
@@ -151,31 +73,7 @@ class _SendFeedbackState extends State<SendFeedback> {
                     children: <Widget>[
                       Padding(
                         padding: EdgeInsets.all(10.0),
-                        child: GestureDetector(
-                          onTap: () async {
-                            var name = await showMenu(SkillsMenu(), false);
-                            setState(() {
-                              _skillName = name;
-                            });
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Skill',
-                                textAlign: TextAlign.left,
-                                style: kTitleDecoration,
-                              ),
-                              Text(
-                                _skillName,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        child: chooseSkill(),
                       ),
                       Divider(
                         color: Colors.grey,
@@ -185,134 +83,16 @@ class _SendFeedbackState extends State<SendFeedback> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              'Title',
-                              textAlign: TextAlign.left,
-                              style: kTitleDecoration,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10.0),
-                              child: TextField(
-                                keyboardType: TextInputType.text,
-                                decoration: kTextFieldDecoration.copyWith(
-                                  errorText: _validateTitle
-                                      ? 'Please write the feedback\'s title '
-                                      : null,
-                                ),
-                                controller: titleController,
-                                onChanged: (title) {
-                                  setState(() {
-                                    _validateTitle = false;
-                                  });
 
-                                  _titleText = title;
-                                },
-                              ),
-                            ),
+                            writeTitle(),
+
                             SizedBox(
                               height: 23.0,
                               child: Divider(
                                 color: Colors.grey,
                               ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  'You should',
-                                  textAlign: TextAlign.right,
-                                  style: kTitleDecoration,
-                                ),
-                                Wrap(
-                                  spacing: 6.0,
-                                  children: <Widget>[
-                                    ChoiceChip(
-                                      label: Text(
-                                        'Stop That',
-                                        style: TextStyle(
-                                            color:
-                                                _selectedAction == "stop_that"
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                      ),
-                                      backgroundColor:
-                                          _selectedAction == "stop_that"
-                                              ? Colors.red
-                                              : Colors.transparent,
-                                      shape: StadiumBorder(
-                                          side: BorderSide(color: Colors.red)),
-                                      avatar: Icon(
-                                        FontAwesomeIcons.times,
-                                        color: _selectedAction == "stop_that"
-                                            ? Colors.white
-                                            : Colors.red,
-                                      ),
-                                      selected: false,
-                                      onSelected: (bool selected) {
-                                        _selectedAction = "stop_that";
-                                        setState(() {});
-                                      },
-                                      selectedColor: Colors.red,
-                                    ),
-                                    ChoiceChip(
-                                        label: Text(
-                                          'Take Action',
-                                          style: TextStyle(
-                                              color: _selectedAction ==
-                                                      "take_action"
-                                                  ? Colors.white
-                                                  : Colors.black),
-                                        ),
-                                        avatar: Icon(
-                                          FontAwesomeIcons.exclamation,
-                                          color:
-                                              _selectedAction == "take_action"
-                                                  ? Colors.white
-                                                  : Colors.orange,
-                                        ),
-                                        backgroundColor:
-                                            _selectedAction == "take_action"
-                                                ? Colors.orange
-                                                : Colors.transparent,
-                                        shape: StadiumBorder(
-                                            side: BorderSide(
-                                                color: Colors.orange)),
-                                        selected: false,
-                                        onSelected: (bool selected) {
-                                          _selectedAction = "take_action";
-                                          setState(() {});
-                                        }),
-                                    ChoiceChip(
-                                        label: Text(
-                                          'Keep Doing',
-                                          style: TextStyle(
-                                              color: _selectedAction ==
-                                                      "keep_doing"
-                                                  ? Colors.white
-                                                  : Colors.black),
-                                        ),
-                                        avatar: Icon(
-                                          FontAwesomeIcons.check,
-                                          color: _selectedAction == "keep_doing"
-                                              ? Colors.white
-                                              : Colors.green,
-                                        ),
-                                        backgroundColor:
-                                            _selectedAction == "keep_doing"
-                                                ? Colors.green
-                                                : Colors.transparent,
-                                        shape: StadiumBorder(
-                                            side: BorderSide(
-                                                color: Colors.green)),
-                                        selected: false,
-                                        onSelected: (bool selected) {
-                                          _selectedAction = "keep_doing";
-                                          setState(() {});
-                                        }),
-                                  ],
-                                )
-                              ],
-                            ),
+                            chooseAction(),
                             SizedBox(
                               height: 23.0,
                               child: Divider(
@@ -408,51 +188,52 @@ class _SendFeedbackState extends State<SendFeedback> {
                                 ));
                               }
                             } else {
-                              var searchRecipientUID = await Firestore.instance
-                                  .collection('users')
-                                  .where('complete_name',
-                                      isEqualTo: _recipientName)
-                                  .getDocuments();
-                              searchRecipientUID.documents.forEach((res) {
-                                _recipientUID = res.data['UID'];
-                              });
-
-                              var searchSenderName = await Firestore.instance
-                                  .collection('users')
-                                  .where('UID', isEqualTo: _loggedInUser.uid)
-                                  .getDocuments();
-                              searchSenderName.documents.forEach((res) {
-                                _senderName = res.data['complete_name'];
-                              });
-
-                              _firestore.collection('feedback').add({
-                                'recipient': _recipientUID,
-                                'skill': _skillName,
-                                'title': _titleText,
-                                'details': _detailsText,
-                                'action': _selectedAction,
-                                'sender': _senderName,
-                              });
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Row(children: <Widget>[
-                                  Expanded(
-                                      child:
-                                          Text('Feedback sent successfully')),
-                                  Icon(Icons.check)
-                                ]),
-                              ));
-
-                              setState(() {
-                                _validateTitle = false;
-
-                                _recipientName = 'Foulan Foulani';
-                                _skillName =
-                                    'Choose the skill you want to receive feedback on';
-                              });
-
-                              titleController.clear();
-                              detailsController.clear();
-                              _selectedAction = null;
+                              _bloc.giveFeedback();
+//                              var searchRecipientUID = await Firestore.instance
+//                                  .collection('users')
+//                                  .where('complete_name',
+//                                      isEqualTo: _recipientName)
+//                                  .getDocuments();
+//                              searchRecipientUID.documents.forEach((res) {
+//                                _recipientUID = res.data['UID'];
+//                              });
+//
+//                              var searchSenderName = await Firestore.instance
+//                                  .collection('users')
+//                                  .where('UID', isEqualTo: _bloc.loggedInUserUID)
+//                                  .getDocuments();
+//                              searchSenderName.documents.forEach((res) {
+//                                _senderName = res.data['complete_name'];
+//                              });
+//
+//                              _firestore.collection('feedback').add({
+//                                'recipient': _recipientUID,
+//                                'skill': _skillName,
+//                                'title': _titleText,
+//                                'details': _detailsText,
+//                                'action': _selectedAction,
+//                                'sender': _senderName,
+//                              });
+//                              Scaffold.of(context).showSnackBar(SnackBar(
+//                                content: Row(children: <Widget>[
+//                                  Expanded(
+//                                      child:
+//                                          Text('Feedback sent successfully')),
+//                                  Icon(Icons.check)
+//                                ]),
+//                              ));
+//
+//                              setState(() {
+//                                _validateTitle = false;
+//
+//                                _recipientName = 'Foulan Foulani';
+//                                _skillName =
+//                                    'Choose the skill you want to receive feedback on';
+//                              });
+//
+//                              titleController.clear();
+//                              detailsController.clear();
+//                              _selectedAction = null;
                             }
                           },
                         ),
@@ -467,5 +248,249 @@ class _SendFeedbackState extends State<SendFeedback> {
       }),
 //
     );
+  }
+
+  Widget actions(){
+    return  Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        backButton(),
+        signOutButton(),
+      ],
+    );
+  }
+
+  IconButton backButton(){
+    return IconButton(
+      icon: Icon(Icons.arrow_back_ios),
+      color: Colors.grey[700],
+      iconSize: 20.0,
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  IconButton signOutButton(){
+    return IconButton(
+        icon: Icon(
+          FontAwesomeIcons.signOutAlt,
+          color: Colors.grey[700],
+          size: 20.0,
+        ),
+        onPressed: () {
+          _bloc.signOut();
+          Navigator.pushNamed(context, LogIn.id);
+        });
+  }
+
+  Widget chooseRecipient(){
+    return Container(
+      padding: EdgeInsets.all(18.0),
+      margin: EdgeInsets.symmetric(vertical: 25.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30.0),
+      ),
+      child:  GestureDetector(
+        onTap: () async {
+          var name = await showMenu(RecipientsMenu(), true);
+          setState(() {
+            _recipientName = name;
+          });
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Choose a recipient',
+              textAlign: TextAlign.left,
+              style: kTitleDecoration.copyWith(fontSize: 16.0),
+            ),
+            Text(
+              _recipientName,
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget chooseSkill(){
+    return GestureDetector(
+      onTap: () async {
+        var name = await showMenu(SkillsMenu(), false);
+        setState(() {
+          _skillName = name;
+        });
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Skill',
+            textAlign: TextAlign.left,
+            style: kTitleDecoration,
+          ),
+          Text(
+            _skillName,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget writeTitle(){
+    return Column(
+      children: <Widget>[
+        Text(
+          'Title',
+          textAlign: TextAlign.left,
+          style: kTitleDecoration,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+          child: TextField(
+            keyboardType: TextInputType.text,
+            decoration: kTextFieldDecoration.copyWith(
+              errorText: _validateTitle
+                  ? 'Please write the feedback\'s title '
+                  : null,
+            ),
+            controller: titleController,
+            onChanged: (title) {
+              setState(() {
+                _validateTitle = false;
+              });
+
+              _titleText = title;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget chooseAction(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          'You should',
+          textAlign: TextAlign.right,
+          style: kTitleDecoration,
+        ),
+        Wrap(
+          spacing: 6.0,
+          children: <Widget>[
+            redChip(),
+            ChoiceChip(
+                label: Text(
+                  'Take Action',
+                  style: TextStyle(
+                      color: _selectedAction ==
+                          "take_action"
+                          ? Colors.white
+                          : Colors.black),
+                ),
+                avatar: Icon(
+                  FontAwesomeIcons.exclamation,
+                  color:
+                  _selectedAction == "take_action"
+                      ? Colors.white
+                      : Colors.orange,
+                ),
+                backgroundColor:
+                _selectedAction == "take_action"
+                    ? Colors.orange
+                    : Colors.transparent,
+                shape: StadiumBorder(
+                    side: BorderSide(
+                        color: Colors.orange)),
+                selected: false,
+                onSelected: (bool selected) {
+                  _selectedAction = "take_action";
+                  setState(() {});
+                }),
+            ChoiceChip(
+                label: Text(
+                  'Keep Doing',
+                  style: TextStyle(
+                      color: _selectedAction ==
+                          "keep_doing"
+                          ? Colors.white
+                          : Colors.black),
+                ),
+                avatar: Icon(
+                  FontAwesomeIcons.check,
+                  color: _selectedAction == "keep_doing"
+                      ? Colors.white
+                      : Colors.green,
+                ),
+                backgroundColor:
+                _selectedAction == "keep_doing"
+                    ? Colors.green
+                    : Colors.transparent,
+                shape: StadiumBorder(
+                    side: BorderSide(
+                        color: Colors.green)),
+                selected: false,
+                onSelected: (bool selected) {
+                  _selectedAction = "keep_doing";
+                  setState(() {});
+                }),
+          ],
+        )
+      ],
+    );
+  }
+
+  redChip(){
+    return ChoiceChip(
+      selectedColor: ,
+      disabledColor: ,
+      label: Text(
+        'Stop That',
+        style: TextStyle(
+            color:
+            _selectedAction == "stop_that"
+                ? Colors.white
+                : Colors.black),
+      ),
+      backgroundColor:
+      _selectedAction == "stop_that"
+          ? Colors.red
+          : Colors.transparent,
+      shape: StadiumBorder(
+          side: BorderSide(color: Colors.red)),
+      avatar: Icon(
+        FontAwesomeIcons.times,
+        color: _selectedAction == "stop_that"
+            ? Colors.white
+            : Colors.red,
+      ),
+      selected: false,
+      onSelected: (bool selected) {
+        _selectedAction = "stop_that";
+        setState(() {});
+      },
+      selectedColor: Colors.red,
+    );
+  }
+
+  Future<String> showMenu(Widget widget, bool isScrolled) async {
+    return await showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        elevation: 5.0,
+        isScrollControlled: isScrolled,
+        context: context,
+        builder: (BuildContext context) {
+          return widget;
+        });
   }
 }

@@ -7,6 +7,7 @@ import 'components/text_link.dart';
 
 class LogIn extends StatefulWidget {
   static String id = 'login';
+
   @override
   _LogInState createState() => _LogInState();
 }

@@ -9,9 +9,9 @@ class Repository {
   Future<bool> authenticateUser(String email, String password) =>
       _firestoreProvider.authenticateUser(email, password);
 
-  void signOut() => _firestoreProvider.signOut();
+  String getLoggedInUserUID() => _firestoreProvider.getLoggedInUserUID();
 
-  void getCurrentUser() => _firestoreProvider.getCurrentUser();
+  void signOut() => _firestoreProvider.signOut();
 
   Future<bool> hasFeedback() => _firestoreProvider.hasFeedback();
 
@@ -20,8 +20,7 @@ class Repository {
     String title,
     String skill,
     String action,
-    String details,
-  ) =>
+    String details,  ) =>
       _firestoreProvider.giveFeedback(
           recipientName: recipientName,
           title: title,
@@ -33,5 +32,7 @@ class Repository {
           String firstName, String lastName, String email, String password) =>
       _firestoreProvider.registerUser(firstName, lastName, email, password);
 
-  Future<QuerySnapshot> getFeedback() => _firestoreProvider.getFeedback();
+  Future<QuerySnapshot> getFeedback(String uid) {
+    return _firestoreProvider.getFeedback(uid);
+  }
 }

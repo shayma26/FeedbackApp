@@ -1,5 +1,3 @@
-import 'package:askforfeedback/src/models/feedback.dart';
-
 import '../data/resources/repository.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:async';
@@ -24,13 +22,11 @@ class ReceivedFeedbackBloc {
 
   Stream<bool> get showProgress => _showProgress.stream;
 
-  Future<QuerySnapshot> myReceivedFeedback() {
-    return _repository.getFeedback();
+  Future<QuerySnapshot> myReceivedFeedback(String uid) {
+    return _repository.getFeedback(uid);
   }
 
   void signOut() => _repository.signOut();
-
-  void getCurrentUser() => _repository.getCurrentUser();
 
   //dispose all open sink
   void dispose() async {

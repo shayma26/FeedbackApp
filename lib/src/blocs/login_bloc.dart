@@ -19,6 +19,8 @@ class LoginBloc {
 
   Stream<bool> get progressBarStatus => _showProgressBar.stream;
 
+  String get loggedInUserUID => _repository.getLoggedInUserUID();
+
   // Change data
   Function(String) get changeEmail => _email.sink.add;
 
@@ -31,6 +33,8 @@ class LoginBloc {
   Future<bool> submit() {
     return _repository.authenticateUser(_email.value, _password.value);
   }
+
+  //void getCurrentUser() => _repository.getCurrentUser();
 
   Future<bool> hasFeedback() => _repository.hasFeedback();
 

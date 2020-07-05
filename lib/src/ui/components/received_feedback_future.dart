@@ -3,12 +3,16 @@ import 'package:askforfeedback/src/blocs/received_feedback_bloc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class ReceivedFeedbackStream extends StatefulWidget {
+class ReceivedFeedbackFuture extends StatefulWidget {
+  final String loggedInUserUID;
+
+  ReceivedFeedbackFuture({this.loggedInUserUID});
+
   @override
-  _ReceivedFeedbackStreamState createState() => _ReceivedFeedbackStreamState();
+  _ReceivedFeedbackFutureState createState() => _ReceivedFeedbackFutureState();
 }
 
-class _ReceivedFeedbackStreamState extends State<ReceivedFeedbackStream> {
+class _ReceivedFeedbackFutureState extends State<ReceivedFeedbackFuture> {
   ReceivedFeedbackBloc _bloc;
 
   @override
@@ -18,15 +22,9 @@ class _ReceivedFeedbackStreamState extends State<ReceivedFeedbackStream> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _bloc.getCurrentUser();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _bloc.myReceivedFeedback(),
+      future: _bloc.myReceivedFeedback(widget.loggedInUserUID),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text(
@@ -71,7 +69,7 @@ class _ReceivedFeedbackStreamState extends State<ReceivedFeedbackStream> {
                               fontWeight: FontWeight.w500),
                         ),
                         TextSpan(
-                          text: senderName,
+                          text: "from $senderName",
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 15.0,
@@ -81,12 +79,15 @@ class _ReceivedFeedbackStreamState extends State<ReceivedFeedbackStream> {
                     ),
                   ),
                   children: <Widget>[
-                    Text(
-                      details,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w500,
+                    Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Text(
+                        details,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     )
                   ],

@@ -6,13 +6,17 @@ class FirestoreProvider {
   Firestore _firestoreIns = Firestore.instance;
   final _auth = FirebaseAuth.instance;
   FirebaseUser _loggedInUser;
+  String _loggedInUserUID;
 
   Future<bool> authenticateUser(String email, String password) async {
     try {
       final user = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
 
-      if (user != null) _loggedInUser = await _auth.currentUser();
+      if (user != null) {
+        _loggedInUser = await _auth.currentUser();
+        _loggedInUserUID = _loggedInUser.uid;
+      }
     } catch (e) {
       print(e);
       return false;
@@ -21,18 +25,6 @@ class FirestoreProvider {
   }
 
   void signOut() async => await _auth.signOut();
-
-  void getCurrentUser() async {
-    try {
-      final user = await _auth.currentUser();
-
-      if (user != null) {
-        _loggedInUser = user;
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
 
   Future<bool> hasFeedback() async {
     final QuerySnapshot result = await _firestoreIns
@@ -47,19 +39,22 @@ class FirestoreProvider {
       return true;
   }
 
-  Future<QuerySnapshot> getFeedback() async {
-    return await _firestoreIns
+  Future getFeedback(String uid) {
+    return _firestoreIns
         .collection('feedback')
-        .where('recipient', isEqualTo: _loggedInUser.uid)
+        .where('recipient', isEqualTo: uid)
         .getDocuments();
   }
+
+  String getLoggedInUserUID() => _loggedInUserUID;
 
   Future<void> giveFeedback(
       {String recipientName,
       String title,
       String skill,
       String details,
-      String action}) async {
+      String action,
+      String senderUID}) async {
     String recipientUID;
     String senderName;
     var searchRecipientUID = await _firestoreIns
@@ -72,7 +67,7 @@ class FirestoreProvider {
 
     var searchSenderName = await Firestore.instance
         .collection('users')
-        .where('UID', isEqualTo: _loggedInUser.uid)
+        .where('UID', isEqualTo: senderUID)
         .getDocuments();
     searchSenderName.documents.forEach((res) {
       senderName = res.data['complete_name'];

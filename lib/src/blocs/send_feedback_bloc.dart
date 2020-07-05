@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-//import '../models/goal.dart';
 
 import '../data/messages.dart';
 import '../data/resources/repository.dart';
@@ -38,14 +35,14 @@ class FeedbackBloc {
 
   final _validateTitle = StreamTransformer<String, String>.fromHandlers(
       handleData: (String title, sink) {
-    if (RegExp(r'[@#<>":_`~;[\]\\|=+)(*&^%-]').hasMatch(title)) {
-      sink.addError(StringConstant.titleValidateMessage);
-    } else {
-      sink.add(title);
-    }
+    sink.add(title);
   });
 
-  void submit() {
+  String get loggedInUserUID => _repository.getLoggedInUserUID();
+
+  void signOut() => _repository.signOut();
+
+  void giveFeedback() {
     _showProgress.sink.add(true);
     _repository
         .giveFeedback(
@@ -59,10 +56,6 @@ class FeedbackBloc {
       _showProgress.sink.add(false);
       _showSnackBar.sink.add(true);
     });
-  }
-
-  Future<QuerySnapshot> myFeedback() {
-    return _repository.getFeedback();
   }
 
   //dispose all open sink

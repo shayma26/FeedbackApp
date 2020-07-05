@@ -1,4 +1,3 @@
-import 'package:askforfeedback/src/ui/components/showAlert.dart';
 import 'package:askforfeedback/src/ui/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ForgotPassword extends StatefulWidget {
   static String id = 'forgotpassword';
+
   @override
   _ForgotPasswordState createState() => _ForgotPasswordState();
 }
@@ -16,10 +16,13 @@ class ForgotPassword extends StatefulWidget {
 final _auth = FirebaseAuth.instance;
 
 class _ForgotPasswordState extends State<ForgotPassword> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController email = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: kBackgroundColor,
       body: SingleChildScrollView(
         child: Column(
@@ -39,7 +42,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               ),
               child: Column(
                 children: <Widget>[
-                  ShowAlert(),
+                  //ShowAlert(),
                   Row(
                     children: <Widget>[
                       IconButton(
@@ -71,34 +74,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   ),
                   Container(
                     height: 45.0,
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: TextFormField(
-                      keyboardType: TextInputType.emailAddress,
-                      autovalidate: true,
-                      controller: email,
-                      decoration: InputDecoration(
-                          filled: true,
-                          hintText: 'mail@example.com',
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 7.0, horizontal: 30),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0))),
-                    ),
+                    child: emailField(),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 30.0),
-                    child: RoundedButton(
-                      onPressed: () {
-                        _auth.sendPasswordResetEmail(email: email.text);
-                        Navigator.pop(context);
-                        ShowAlert.warning =
-                            "A password reset link has been sent to your email";
-                      },
-                      label: 'Reset Password',
-                      width: MediaQuery.of(context).size.width * 0.55,
-                      labelWeight: FontWeight.w500,
-                      elevation: 0.0,
-                    ),
+                    child: Builder(builder: (context) => resetButton()),
                   ),
                 ],
               ),
@@ -107,5 +87,54 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         ),
       ),
     );
+  }
+
+  Widget emailField() {
+    return TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      autovalidate: true,
+      controller: email,
+      decoration: InputDecoration(
+          filled: true,
+          hintText: 'mail@example.com',
+          contentPadding: EdgeInsets.symmetric(vertical: 7.0, horizontal: 30),
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(30.0))),
+    );
+  }
+
+  Widget resetButton() {
+    return RoundedButton(
+        label: 'Reset Password',
+        width: MediaQuery.of(context).size.width * 0.55,
+        labelWeight: FontWeight.w500,
+        elevation: 3.0,
+        onPressed: () {
+          _auth.sendPasswordResetEmail(email: email.text).then((_) {
+            showValidMessage();
+          }).catchError((_) {
+            showErrorMessage();
+          });
+        });
+  }
+
+  void showErrorMessage() {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+        backgroundColor: Colors.blue,
+        content: Text(
+          "Please enter a valid E-mail",
+          style: TextStyle(fontSize: 17),
+        ),
+        duration: new Duration(seconds: 2)));
+  }
+
+  void showValidMessage() {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+        backgroundColor: Colors.blue,
+        content: Text(
+          "A password reset link has been sent to your email",
+          style: TextStyle(fontSize: 17),
+        ),
+        duration: new Duration(seconds: 2)));
   }
 }

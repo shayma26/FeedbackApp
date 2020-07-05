@@ -103,7 +103,7 @@ class _SignInFormState extends State<SignInForm> {
         if (!await authenticateUser()) {
           showErrorMessage();
         } else
-          bool b = await authenticateUser();
+          await authenticateUser();
         _bloc.showProgressBar(false);
       },
     );
@@ -116,7 +116,14 @@ class _SignInFormState extends State<SignInForm> {
       if (!await _bloc.hasFeedback())
         Navigator.pushNamed(context, NoReceivedFeedback.id);
       else
-        Navigator.pushNamed(context, ReceivedFeedback.id);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReceivedFeedback(
+              loggedInUserUID: _bloc.loggedInUserUID,
+            ),
+          ),
+        );
     });
     _bloc.isSignedIn(true);
     return true;

@@ -1,5 +1,5 @@
 import 'package:askforfeedback/src/blocs/received_feedback_bloc_provider.dart';
-import 'components/received_feedback_stream.dart';
+import 'components/received_feedback_future.dart';
 import 'components/rounded_button.dart';
 import 'package:askforfeedback/src/ui/send_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,6 +10,9 @@ import 'login.dart';
 
 class ReceivedFeedback extends StatefulWidget {
   static String id = 'receivedfeedback';
+  final loggedInUserUID;
+
+  const ReceivedFeedback({this.loggedInUserUID});
 
   @override
   _ReceivedFeedbackState createState() => _ReceivedFeedbackState();
@@ -23,12 +26,6 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
     super.didChangeDependencies();
     _bloc = ReceivedFeedbackBlocProvider.of(context);
   }
-
-//  @override
-//  void initState() {
-//    super.initState();
-//    _bloc.getCurrentUser();
-//  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +42,7 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
             expandedHeight: 170,
             actions: <Widget>[
               refreshIcon(),
-              //TODO
-              //signOutIcon(),
+              signOutIcon(),
             ],
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
@@ -65,7 +61,9 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
                 SizedBox(
                   height: 30.0,
                 ),
-                ReceivedFeedbackStream(),
+                ReceivedFeedbackFuture(
+                  loggedInUserUID: widget.loggedInUserUID,
+                ),
               ],
             ),
           ),
@@ -110,7 +108,6 @@ class _ReceivedFeedbackState extends State<ReceivedFeedback> {
         tooltip: 'Tap to sign-out',
         onPressed: () {
           _bloc.signOut();
-          //SendFeedback.signOut();
           Navigator.pushNamed(context, LogIn.id);
         });
   }
