@@ -37,5 +37,7 @@ class Repository {
     return _firestoreProvider.getFeedback(uid);
   }
 
+  Future<void> reset(String email) => _firestoreProvider.reset(email);
+
   Stream getUsers() => _firestoreProvider.getUsers();
 }

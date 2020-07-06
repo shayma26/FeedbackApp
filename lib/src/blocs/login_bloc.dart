@@ -34,8 +34,6 @@ class LoginBloc {
     return _repository.authenticateUser(_email.value, _password.value);
   }
 
-  //void getCurrentUser() => _repository.getCurrentUser();
-
   Future<bool> hasFeedback() => _repository.hasFeedback();
 
   void dispose() async {

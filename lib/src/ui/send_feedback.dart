@@ -1,5 +1,6 @@
 import 'package:askforfeedback/src/blocs/send_feedback_bloc.dart';
 import 'package:askforfeedback/src/blocs/send_feedback_bloc_provider.dart';
+import 'package:askforfeedback/src/ui/received_feedback.dart';
 import 'package:askforfeedback/src/ui/skills_menu.dart';
 import 'package:flutter/material.dart';
 import 'recipients_menu.dart';
@@ -127,7 +128,17 @@ class _SendFeedbackState extends State<SendFeedback> {
       color: Colors.grey[700],
       iconSize: 20.0,
       onPressed: () async {
-        Navigator.pop(context);
+        if (await _bloc.hasFeedback())
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReceivedFeedback(
+                loggedInUserUID: _bloc.loggedInUserUID,
+              ),
+            ),
+          );
+        else
+          Navigator.pop(context);
       },
     );
   }

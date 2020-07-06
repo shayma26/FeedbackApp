@@ -84,9 +84,11 @@ class FirestoreProvider {
   }
 
   Stream<QuerySnapshot> getUsers() =>
-    _firestoreIns.collection('users').snapshots();
+      _firestoreIns.collection('users').snapshots();
 
-
+  Future<void> reset(String email) async {
+    return _auth.sendPasswordResetEmail(email: email);
+  }
 
   Future<bool> registerUser(
     String firstName,

@@ -1,4 +1,4 @@
-import 'package:askforfeedback/src/ui/components/log_in_form.dart';
+import 'package:askforfeedback/src/ui/components/login_form.dart';
 import 'package:flutter/material.dart';
 import 'components/login_image.dart';
 import 'registration.dart';

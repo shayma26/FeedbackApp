@@ -1,3 +1,4 @@
+import 'package:askforfeedback/src/blocs/forgot_password_bloc_provider.dart';
 import 'package:askforfeedback/src/blocs/login_bloc_provider.dart';
 import 'package:askforfeedback/src/blocs/received_feedback_bloc_provider.dart';
 import 'package:askforfeedback/src/blocs/register_bloc_provider.dart';
@@ -16,21 +17,23 @@ class AskForFeedback extends StatelessWidget {
   Widget build(BuildContext context) {
     return RegisterBlocProvider(
       child: LoginBlocProvider(
-        child: ReceivedFeedbackBlocProvider(
-          child: UsersBlocProvider(
-            child: FeedbackBlocProvider(
-              child: MaterialApp(
-                title: 'Ask For Feedback',
-                theme: ThemeData(fontFamily: 'Poppins'),
-                routes: {
-                  ForgotPassword.id: (context) => ForgotPassword(),
-                  Register.id: (context) => Register(),
-                  LogIn.id: (context) => LogIn(),
-                  NoReceivedFeedback.id: (context) => NoReceivedFeedback(),
-                  ReceivedFeedback.id: (context) => ReceivedFeedback(),
-                  SendFeedback.id: (context) => SendFeedback(),
-                },
-                initialRoute: Register.id,
+        child: ForgotPasswordBlocProvider(
+          child: ReceivedFeedbackBlocProvider(
+            child: UsersBlocProvider(
+              child: FeedbackBlocProvider(
+                child: MaterialApp(
+                  title: 'Ask For Feedback',
+                  theme: ThemeData(fontFamily: 'Poppins'),
+                  routes: {
+                    ForgotPassword.id: (context) => ForgotPassword(),
+                    Register.id: (context) => Register(),
+                    LogIn.id: (context) => LogIn(),
+                    NoReceivedFeedback.id: (context) => NoReceivedFeedback(),
+                    ReceivedFeedback.id: (context) => ReceivedFeedback(),
+                    SendFeedback.id: (context) => SendFeedback(),
+                  },
+                  initialRoute: Register.id,
+                ),
               ),
             ),
           ),

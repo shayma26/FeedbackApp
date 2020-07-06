@@ -40,6 +40,8 @@ class FeedbackBloc {
 
   void signOut() => _repository.signOut();
 
+  Future<bool> hasFeedback() => _repository.hasFeedback();
+
   void giveFeedback() {
     _showProgress.sink.add(true);
     _repository
