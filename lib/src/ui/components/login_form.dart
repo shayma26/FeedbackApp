@@ -95,18 +95,14 @@ class _SignInFormState extends State<SignInForm> {
 
   Widget button() {
     return RoundedButton(
-      label: 'Login',
-      labelSize: 18.0,
-      width: 222,
-      onPressed: () async {
-        _bloc.showProgressBar(true);
-        if (!await authenticateUser()) {
-          showErrorMessage();
-        } else
-          await authenticateUser();
-        _bloc.showProgressBar(false);
-      },
-    );
+        label: 'Login',
+        labelSize: 18.0,
+        width: 222,
+        onPressed: () async {
+          _bloc.showProgressBar(true);
+          if (!await authenticateUser()) showErrorMessage();
+          _bloc.showProgressBar(false);
+        });
   }
 
   Future<bool> authenticateUser() async {
