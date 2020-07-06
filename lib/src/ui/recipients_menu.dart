@@ -1,12 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../data/user.dart';
-import 'package:search_widget/search_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'components/users_stream.dart';
 
-final _firestore = Firestore.instance;
 String selectedRecipient;
-List<User> allMembers = [];
 
 class RecipientsMenu extends StatefulWidget {
   @override
@@ -14,8 +10,6 @@ class RecipientsMenu extends StatefulWidget {
 }
 
 class _RecipientsMenuState extends State<RecipientsMenu> {
-  TextEditingController searchController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -41,101 +35,9 @@ class _RecipientsMenuState extends State<RecipientsMenu> {
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.all(15.0),
-              child: SearchWidget(
-                selectedItemBuilder: null,
-                hideSearchBoxWhenItemSelected: true,
-                dataList: allMembers,
-                listContainerHeight: MediaQuery.of(context).size.height / 4,
-                queryBuilder: (query, list) {
-                  return list
-                      .where((item) => '${item.completeName}'
-                          .toLowerCase()
-                          .contains(query.toLowerCase()))
-                      .toList();
-                },
-                popupListItemBuilder: (item) {
-                  return PopupListItemWidget(item);
-                },
-              ),
-            ),
             UsersStream(),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class UsersStream extends StatelessWidget {
-  UsersStream({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _firestore.collection('users').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Center(
-            child: Column(
-              children: <Widget>[
-                CircularProgressIndicator(
-                  backgroundColor: Colors.blue,
-                ),
-                Text(
-                  'No data yet',
-                  style: TextStyle(fontSize: 20.0),
-                ),
-              ],
-            ),
-          );
-        }
-        final users = snapshot.data.documents;
-        List<Widget> usersWidgets = [];
-        for (var user in users) {
-          String completeName = user.data['complete_name'];
-          final member = User(
-            completeName: completeName,
-          );
-          if (!isThere(list: allMembers, user: member)) allMembers.add(member);
-          usersWidgets.add(
-            ListTile(
-              title: Text(
-                completeName,
-                style: TextStyle(fontSize: 20),
-              ),
-              onTap: () {
-                selectedRecipient = completeName;
-                Navigator.pop(context, selectedRecipient);
-              },
-            ),
-          );
-        }
-        return Column(
-          children: usersWidgets,
-        );
-      },
-    );
-  }
-}
-
-class PopupListItemWidget extends StatelessWidget {
-  const PopupListItemWidget(this.user);
-
-  final User user;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: getListTile(
-        user: user,
-        onTap: () {
-          selectedRecipient = user.completeName;
-          Navigator.pop(context, selectedRecipient);
-        },
       ),
     );
   }

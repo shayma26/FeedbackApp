@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:askforfeedback/src/data/_constants.dart';
 import 'components/important_title.dart';
 import 'components/rounded_button.dart';
-import 'send_screen.dart';
+import 'send_feedback.dart';
 
 class NoReceivedFeedback extends StatelessWidget {
   static String id = 'noreceivedfeedback';

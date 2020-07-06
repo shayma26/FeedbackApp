@@ -1,7 +1,7 @@
 import 'package:askforfeedback/src/blocs/received_feedback_bloc_provider.dart';
 import 'components/received_feedback_future.dart';
 import 'components/rounded_button.dart';
-import 'package:askforfeedback/src/ui/send_screen.dart';
+import 'package:askforfeedback/src/ui/send_feedback.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:askforfeedback/src/data/_constants.dart';

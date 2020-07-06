@@ -9,39 +9,6 @@ class SkillsMenu extends StatefulWidget {
 }
 
 class _SkillsMenuState extends State<SkillsMenu> {
-  void selectItem(String name) {
-    Navigator.pop(context, name);
-  }
-
-  Widget getButtonWidgets(List<String> strings) {
-    List<Widget> list = List<Widget>();
-    for (var string in strings) {
-      list.add(
-        LargeFlatButton(
-          fillText: string,
-          onPressed: () {
-            selectItem(string);
-          }, //onPressed
-        ), //CustomButton
-      ); //add
-    } //for loop
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints viewportConstraints) {
-      return SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: viewportConstraints.maxHeight,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: list,
-          ),
-        ),
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -72,5 +39,38 @@ class _SkillsMenuState extends State<SkillsMenu> {
         ),
       ),
     );
+  }
+
+  void selectItem(String name) {
+    Navigator.pop(context, name);
+  }
+
+  Widget getButtonWidgets(List<String> skills) {
+    List<Widget> list = List<Widget>();
+    for (String skill in skills) {
+      list.add(
+        LargeFlatButton(
+          fillText: skill,
+          onPressed: () {
+            selectItem(skill);
+          }, //onPressed
+        ), //CustomButton
+      ); //add
+    } //for loop
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints viewportConstraints) {
+      return SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: viewportConstraints.maxHeight,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: list,
+          ),
+        ),
+      );
+    });
   }
 }

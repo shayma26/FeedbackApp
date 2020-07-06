@@ -116,7 +116,6 @@ class _SignUpFormState extends State<SignUpForm> {
 
   void authenticateUser() async {
     _bloc.showProgressBar(true);
-
     if (!await _bloc.submit()) {
       showErrorMessage("account already in use or email badly formatted !");
     } else {

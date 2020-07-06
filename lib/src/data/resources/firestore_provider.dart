@@ -83,6 +83,11 @@ class FirestoreProvider {
     });
   }
 
+  Stream<QuerySnapshot> getUsers() =>
+    _firestoreIns.collection('users').snapshots();
+
+
+
   Future<bool> registerUser(
     String firstName,
     String lastName,

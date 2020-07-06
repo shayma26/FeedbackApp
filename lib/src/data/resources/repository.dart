@@ -15,12 +15,13 @@ class Repository {
 
   Future<bool> hasFeedback() => _firestoreProvider.hasFeedback();
 
-  Future<void> giveFeedback(
+  Future<void> giveFeedback({
     String recipientName,
     String title,
     String skill,
     String action,
-    String details,  ) =>
+    String details,
+  }) =>
       _firestoreProvider.giveFeedback(
           recipientName: recipientName,
           title: title,
@@ -35,4 +36,6 @@ class Repository {
   Future<QuerySnapshot> getFeedback(String uid) {
     return _firestoreProvider.getFeedback(uid);
   }
+
+  Stream getUsers() => _firestoreProvider.getUsers();
 }
