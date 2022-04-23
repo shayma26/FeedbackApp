@@ -1,16 +1,10 @@
-# askforfeedback
+# FeedbackApp
 
-A new Flutter application.
+A Flutter application that helps company's members to exchange feedback.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+https://user-images.githubusercontent.com/64952949/164946662-3e6b28f1-9a03-4761-9554-9a4f51228729.mp4
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+© Designed by Haythem Gataa.
